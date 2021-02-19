@@ -1,31 +1,44 @@
 import React,{ useState } from "react";
 import { StyleSheet, View, Text} from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
+import Loading from "../Loading";
 import { validateEmail } from "../../utils/validations";
 import { size, isEmpty } from "lodash";
+import * as firebase from "firebase";
+import { useNavigation } from "@react-navigation/native";
+
 
 export default function RegisterForm(props) {
     const { toastRef } = props;
     const [ showPasssword, setShowPassword ] = useState(false);
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const [ formData, setFormData ] = useState(defaultFormValue());
+    const [loading, setloading] = useState(false);
+    const navigation = useNavigation();
 
     const onSubmit = () => {
         if(isEmpty(formData.email) || isEmpty(formData.password) || isEmpty(formData.repeatPassword)) {
             toastRef.current.show("todos los campos son obligatorios");
         } else if (!validateEmail(formData.email)) {
-           toastRef.current.show("El email no es correcto");
+            toastRef.current.show("El email no es correcto");
         } else if (formData.password !== formData.repeatPassword){
             toastRef.current.show("Las contraseñas tienen que ser iguales");
         } else if (size(formData.password) < 6){
             toastRef.current.show("contraseña tiene que tener al menos 6 caracteres");
         } else {
-            console.log("ok");
+            setloading(true)
+            firebase
+            .auth()
+            .createUserWithEmailAndPassword(formData.email, formData.password)
+            .then((response) => {
+                setloading(false);
+                navigation.navigate("account");
+            })
+            .catch((error) => {
+                setloading(false);
+                toastRef.current.show("El email ya está en uso, pruebe con otro");
+            })
         }
-
-        
-        //console.log(formData);
-        //console.log(validateEmail(formData.email));
     }
 
     const onChange = (e, type) => {
@@ -82,6 +95,7 @@ export default function RegisterForm(props) {
                 buttonStyle={styles.btnRegister}
                 onPress={onSubmit}
             />
+            <Loading isVisible={loading} text="Creando cuenta" />
         </View>
     );
 }

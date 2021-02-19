@@ -68,7 +68,7 @@ export default function RegisterForm(props) {
                 rightIcon={
                     <Icon 
                         type="material-community"
-                         name={ showPasssword ? "eye-off-outline": "eye-outline"}
+                        name={ showPasssword ? "eye-off-outline": "eye-outline"}
                         iconStyle={styles.iconRight}
                         onPress={() => setShowPassword(!showPasssword)}
                     />

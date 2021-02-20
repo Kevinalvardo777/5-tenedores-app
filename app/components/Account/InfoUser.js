@@ -7,6 +7,8 @@ import * as ImagePicker from "expo-image-picker";
 
 export default function InfoUser(props) {
     const { userInfo: { uid, photoURL, displayName, email}, toastRef } = props;
+
+    console.log(props.userInfo);
     
     const changeAvatar = async () => {
         const resultPermision = await Permissions.askAsync(Permissions.CAMERA);
@@ -24,7 +26,7 @@ export default function InfoUser(props) {
             } else {
                 uploadImage(result.uri)
                 .then(() => {
-                    console.log("Imagen subida");
+                    updatePhotoURL();
                 })
                 .catch(() =>{
                     toastRef.current.show("Error al actualizar el avatar");
@@ -39,6 +41,20 @@ export default function InfoUser(props) {
 
         const ref = firebase.storage().ref().child(`avatar/${uid}`);
         return ref.put(blob);
+    }
+
+    const updatePhotoURL = () => {
+        firebase
+            .storage()
+            .ref(`avatar/${uid}`)
+            .getDownloadURL()
+            .then(async (response) => {
+                const update ={
+                    photoURL: response
+                };
+                await firebase.auth().currentUser.updateProfile(update);
+                console.log("Imagen actualizada");
+            })
     }
 
     return(

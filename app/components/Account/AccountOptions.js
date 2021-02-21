@@ -3,18 +3,24 @@ import { StyleSheet, View, Text } from "react-native";
 import { ListItem} from "react-native-elements";
 import { map } from "lodash";
 import Modal from "../Modal";
+import ChangeDisplayNameForm from "../Account/ChangeDisplayNameForm";
 
 export default function AccountOptions(props) {
     const { userInfo, toastRef } = props;
     const [showModal, setshowModal] = useState(false);
     const [renderComponent, setRenderComponent] = useState(null);
     //console.log(menuOptions);
+    //console.log(userInfo);
 
     const selectComponent = (key) => {
        switch (key) {
            case "displayName":
                 setRenderComponent(
-                    <Text>Cambiando nombre y apellido</Text>
+                    <ChangeDisplayNameForm 
+                        displayName={userInfo.displayName}
+                        setshowModal={setshowModal}
+                        toastRef={toastRef}
+                    />
                 )
                 setshowModal(true);
                 break;

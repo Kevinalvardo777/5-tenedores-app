@@ -6,8 +6,8 @@ import Modal from "../Modal";
 import ChangeDisplayNameForm from "../Account/ChangeDisplayNameForm";
 
 export default function AccountOptions(props) {
-    const { userInfo, toastRef } = props;
-    const [showModal, setshowModal] = useState(false);
+    const { userInfo, toastRef, setReloadUserInfo} = props;
+    const [showModal, setShowModal] = useState(false);
     const [renderComponent, setRenderComponent] = useState(null);
     //console.log(menuOptions);
     //console.log(userInfo);
@@ -18,11 +18,12 @@ export default function AccountOptions(props) {
                 setRenderComponent(
                     <ChangeDisplayNameForm 
                         displayName={userInfo.displayName}
-                        setshowModal={setshowModal}
+                        setShowModal={setShowModal}
+                        setReloadUserInfo={setReloadUserInfo}
                         toastRef={toastRef}
                     />
                 )
-                setshowModal(true);
+                setShowModal(true);
                 break;
             case "email":
                 setRenderComponent(
@@ -34,11 +35,11 @@ export default function AccountOptions(props) {
                 setRenderComponent(
                     <Text>Cambiando contraseña</Text>
                 )
-                setshowModal(true);
+                setShowModal(true);
                 break;
            default:
                 setRenderComponent(null);
-                setshowModal(false);
+                setShowModal(false);
                 break;
        }
     }
@@ -67,7 +68,7 @@ export default function AccountOptions(props) {
                 />
             ))}
             { renderComponent && 
-            <Modal isVisible={showModal} setIsVisible={setshowModal} >
+            <Modal isVisible={showModal} setIsVisible={setShowModal} >
             {renderComponent}
             </Modal>
             }

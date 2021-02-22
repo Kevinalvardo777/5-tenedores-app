@@ -2,18 +2,22 @@ import React, {useState} from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { Input, Button } from "react-native-elements";
 import { size } from "lodash";
+import { reauthenticate } from "../../utils/api";
+import * as firebase from "firebase";
 
 export default function ChangePasswordForm(props) {
     const { setShowModal ,toastRef } = props
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState(defaultValue());
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const onChange = (e, type) => {
         setFormData({ ...formData, [type]: e.nativeEvent.text });
     }
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
+        let isSetError = true;
         let errorsTemp = {};
         setErrors({});
         if(!formData.password || !formData.newPassword || !formData.repeatNewPassword){
@@ -29,14 +33,36 @@ export default function ChangePasswordForm(props) {
             }
         } else if(size(formData.newPassword) < 6){
             errorsTemp = {
-                newPassword: "La contraseña tiene que ser mayor a 6 caracteres", 
-                repeatNewPassword: "La contraseña tiene que ser mayor a 6 caracteres"
+                newPassword: "La contraseña tiene que ser mayor a 5 caracteres", 
+                repeatNewPassword: "La contraseña tiene que ser mayor a 5 caracteres"
             }
         } else {
-            console.log("ok");
+            setIsLoading(true);
+            await reauthenticate(formData.password)
+            .then(async () => {
+                await firebase
+                .auth()
+                .currentUser.updatePassword(formData.newPassword)
+                .then(() => {
+                    isSetError = false;
+                    setIsLoading(false);
+                    setShowModal(false);
+                    firebase.auth().signOut()
+                }).catch(() => {
+                    errorsTemp = {
+                        other: "Error al actualizar la contraseña."
+                    }
+                    setIsLoading(false);
+                })
+            }).catch(() => {
+                errorsTemp = {
+                    password: "La contraseña no es correcta"
+                }
+                setIsLoading(false);
+            })
         }
 
-        setErrors(errorsTemp);
+        isSetError && setErrors(errorsTemp);
     }
 
     return (
@@ -88,7 +114,9 @@ export default function ChangePasswordForm(props) {
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
                 onPress={onSubmit}
+                loading={isLoading}
             />
+            <Text>{errors.other}</Text>
         </View>
     );
 }

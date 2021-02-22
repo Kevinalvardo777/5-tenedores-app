@@ -2,6 +2,7 @@ import React, { useState} from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Input, Button } from "react-native-elements";
 import { validateEmail } from "../../utils/validations";
+import { reauthenticate } from "../../utils/api";
 
 export default function ChangeEmailForm(props) {
     const { email, setShowModal, toastRef, setReloadUserInfo } = props;
@@ -28,7 +29,13 @@ export default function ChangeEmailForm(props) {
                 password: "La contraseña no puede estar vacía."
             })
         } else {
-            console.log("OK");
+            reauthenticate(formData.password)
+            .then((response) => {
+                console.log(response);
+            })
+            .catch(() => {
+                setErrors({ password: "La contraseña no es correcta"})
+            })
         }
     }
 

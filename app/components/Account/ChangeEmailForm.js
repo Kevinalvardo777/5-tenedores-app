@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useState} from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Input, Button } from "react-native-elements";
 
 export default function ChangeEmailForm(props) {
     const { email, setShowModal, toastRef, setReloadUserInfo } = props;
+    const [formData, setFormData] = useState(defaultValue());
+
+    const onChange = (e, type) => {
+        setFormData({ ...formData, [type]: e.nativeEvent.text });
+    }
 
     const onSubmit = () => {
         console.log("formulario enviado...");
+        console.log(formData);
     }
 
     return (
@@ -20,6 +26,7 @@ export default function ChangeEmailForm(props) {
                     name: "at",
                     color: "#c2c2c2"
                 }}
+                onChange={(e) => onChange(e, "email")}
             />
             <Input 
                 placeholder="Contraseña"
@@ -31,14 +38,23 @@ export default function ChangeEmailForm(props) {
                     name: "eye-outline",
                     color: "#c2c2c2"
                 }}
+                onChange={(e) => onChange(e, "password")}
             />
             <Button 
                 title="Cambiar email"
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
+                onPress={onSubmit}
             />
         </View>
     );
+}
+
+function defaultValue() {
+    return {
+        email: "", 
+        password: ""
+    }
 }
 
 const styles = StyleSheet.create({

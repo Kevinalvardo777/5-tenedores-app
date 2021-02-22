@@ -1,14 +1,17 @@
 import React, { useState} from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Input, Button } from "react-native-elements";
+import * as firebase from "firebase";
 import { validateEmail } from "../../utils/validations";
 import { reauthenticate } from "../../utils/api";
+
 
 export default function ChangeEmailForm(props) {
     const { email, setShowModal, toastRef, setReloadUserInfo } = props;
     const [formData, setFormData] = useState(defaultValue());
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const onChange = (e, type) => {
         setFormData({ ...formData, [type]: e.nativeEvent.text });
@@ -29,11 +32,24 @@ export default function ChangeEmailForm(props) {
                 password: "La contraseña no puede estar vacía."
             })
         } else {
+            setIsLoading(true);
             reauthenticate(formData.password)
             .then((response) => {
-                console.log(response);
+                firebase.auth()
+                .currentUser.updateEmail(formData.email)
+                .then(() => {
+                    setIsLoading(false);
+                    setReloadUserInfo(true);
+                    toastRef.current.show("Email actualizado correctamente");
+                    setShowModal(false);
+                })
+                .catch(() => {
+                    setErrors({ email: "Error al actualizar el email."})
+                    setIsLoading(false);
+                })
             })
             .catch(() => {
+                setIsLoading(false);
                 setErrors({ password: "La contraseña no es correcta"})
             })
         }
@@ -72,6 +88,7 @@ export default function ChangeEmailForm(props) {
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
                 onPress={onSubmit}
+                loading={isLoading}
             />
         </View>
     );

@@ -22,6 +22,7 @@ export default function AddRestaurantForm(props) {
                 setRestaurantAddress={setRestaurantAddress}
                 setRestaurantDescription={setRestaurantDescription}
             />
+            <UploadImage />
             <Button 
                 title="Crear Restaurante"
                 onPress={addRestaurant}
@@ -56,6 +57,24 @@ function FormAdd(props) {
     )
 }
 
+function UploadImage(){
+    const imageSelect = () => {
+        console.log("imagenes..")
+    }
+
+    return (
+        <View style={styles.viewImage}>
+            <Icon 
+                type="material-community"
+                name="camera"
+                color="#7a7a7a"
+                containerStyle={styles.containerIcon}
+                onPress={imageSelect}
+            />
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
     scrollView: {
         height: "100%"
@@ -76,5 +95,19 @@ const styles = StyleSheet.create({
     btnAddRestaurant: {
         backgroundColor: "#00a680", 
         margin: 20
+    }, 
+    viewImage: {
+        flexDirection: "row", 
+        marginLeft: 20, 
+        marginRight: 20, 
+        marginTop: 30
+    }, 
+    containerIcon: {
+        alignItems: "center",
+        justifyContent: "center", 
+        marginRight: 10, 
+        height: 70, 
+        width: 70,
+        backgroundColor: "#e3e3e3"
     }
 })

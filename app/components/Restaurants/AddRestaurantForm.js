@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, ScrollView, Alert, Dimensions } from "react-nat
 import { Icon, Avatar, Image , Input, Button } from "react-native-elements";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
-import { map, size } from "lodash";
+import { map, size, filter } from "lodash";
 
 export default function AddRestaurantForm(props) {
     const { toastRef, setIsLoading, navigation } = props;
@@ -93,9 +93,31 @@ function UploadImage(props){
         }
     }
 
+    const removeImage = (image) => {
+        Alert.alert(
+            "Eliminar imagen",
+            "Estás seguro de que quieres eliminar la imagen?",
+            [
+                {
+                    text: "Cancel",
+                    style:"cancel"
+                }, 
+                {
+                    text: "Eliminar",
+                    onPress: () => {
+                        setImageSelected(
+                        filter(imageSelected, (imageUrl) => imageUrl !== image)
+                        );
+                    }
+                },
+            ], 
+            {cancelable: false}
+        )
+    }
+
     return (
         <View style={styles.viewImage}>
-            {size(imageSelected) < 5 && (
+            {size(imageSelected) < 4 && (
                  <Icon 
                     type="material-community"
                     name="camera"
@@ -110,6 +132,7 @@ function UploadImage(props){
                 key={index}
                 style={styles.miniatureStyle}
                 source={{ uri: imageRestaurant }}
+                onPress={() => removeImage(imageRestaurant)}
             />  
         ))}
         </View>

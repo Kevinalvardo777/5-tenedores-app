@@ -4,6 +4,7 @@ import { Icon, Avatar, Image , Input, Button } from "react-native-elements";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
+import MapView from "react-native-maps";
 import { map, size, filter } from "lodash";
 import Modal from "../Modal";
 
@@ -123,7 +124,24 @@ function Map(props) {
     
     return (
         <Modal isVisible={isVisibleMap} setIsVisible={setIsVisibleMap}>
-            <Text>Mapa</Text>
+            <View>
+                {location && (
+                    <MapView
+                        style={styles.mapStyle}
+                        initialRegion={location}
+                        showsUserLocation={true}
+                        onRegionChange={(region) => setLocation(region)}
+                    >
+                        <MapView.Marker 
+                            coordinate={{
+                                latitude: location.latitude,
+                                longitude: location.longitude
+                            }}
+                            draggable
+                        />
+                    </MapView>
+                )}
+            </View>
         </Modal>
     )
 }
@@ -247,5 +265,9 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         height: 200, 
         marginBottom: 20
+    }, 
+    mapStyle: {
+        width: "100%",
+        height: 550
     }
 })

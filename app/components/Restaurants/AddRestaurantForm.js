@@ -1,8 +1,9 @@
-import React, {useState} from "react";
+import React, {useState, useEffect } from "react";
 import { StyleSheet, View, Text, ScrollView, Alert, Dimensions } from "react-native";
 import { Icon, Avatar, Image , Input, Button } from "react-native-elements";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import { map, size, filter } from "lodash";
 import Modal from "../Modal";
 
@@ -96,6 +97,29 @@ function FormAdd(props) {
 
 function Map(props) {
     const { isVisibleMap, setIsVisibleMap } = props;
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        //Funcion anonima asincrona autoejecutable
+        (async () => {
+            const resultPermissions = await Permissions.askAsync(
+                Permissions.LOCATION
+            );
+            const statusPermissions = resultPermissions.permissions.location.status;
+
+            if(statusPermissions !== "granted"){
+                toastRef.current.show("Tienes que aceptar los permisos de localización para crear un restaurante", 3000)
+            } else {
+                const loc = await Location.getCurrentPositionAsync({});
+                setLocation({
+                    latitude: loc.coords.latitude, 
+                    longitude: loc.coords.longitude, 
+                    latitudeDelta: 0.001, 
+                    longitudeDelta: 0.001
+                })
+            }
+        })()
+    }, []);
     
     return (
         <Modal isVisible={isVisibleMap} setIsVisible={setIsVisibleMap}>

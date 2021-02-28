@@ -5,6 +5,8 @@ import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
 import { map, size, filter } from "lodash";
 
+const widthScreen = Dimensions.get("window").width;
+
 export default function AddRestaurantForm(props) {
     const { toastRef, setIsLoading, navigation } = props;
     const [restaurantName, setRestaurantName] = useState("");
@@ -24,6 +26,9 @@ export default function AddRestaurantForm(props) {
 
     return (
         <ScrollView style={styles.scrollView}>
+            <ImageRestaurant 
+                imageRestaurant={imageSelected[0]}
+            />
             <FormAdd 
                 setRestaurantName={setRestaurantName}
                 setRestaurantAddress={setRestaurantAddress}
@@ -37,6 +42,21 @@ export default function AddRestaurantForm(props) {
             />
         </ScrollView>
     );
+}
+
+function ImageRestaurant(props) {
+    const { imageRestaurant } = props;
+
+    return(
+        <View style={styles.viewPhoto}>
+            <Image 
+                source={
+                    imageRestaurant ? {uri: imageRestaurant} 
+                    : require("../../../assets/img/no-image.png") }
+                style={{ width: widthScreen, height: 200}}
+            />
+        </View>
+    )
 }
 
 function FormAdd(props) {
@@ -178,5 +198,10 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70, 
         marginRight: 10
+    }, 
+    viewPhoto: {
+        alignItems: "center", 
+        height: 200, 
+        marginBottom: 20
     }
 })

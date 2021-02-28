@@ -4,6 +4,7 @@ import { Icon, Avatar, Image , Input, Button } from "react-native-elements";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
 import { map, size, filter } from "lodash";
+import Modal from "../Modal";
 
 const widthScreen = Dimensions.get("window").width;
 
@@ -13,6 +14,7 @@ export default function AddRestaurantForm(props) {
     const [restaurantAddress, setRestaurantAddress] = useState("");
     const [restaurantDescription, setRestaurantDescription] = useState("");
     const [imageSelected, setImageSelected] = useState([]);
+    const [isVisibleMap, setIsVisibleMap] = useState(false);
 
 
     const addRestaurant = () => {
@@ -33,6 +35,7 @@ export default function AddRestaurantForm(props) {
                 setRestaurantName={setRestaurantName}
                 setRestaurantAddress={setRestaurantAddress}
                 setRestaurantDescription={setRestaurantDescription}
+                setIsVisibleMap={setIsVisibleMap}
             />
             <UploadImage toastRef={toastRef} setImageSelected={setImageSelected} imageSelected={imageSelected} />
             <Button 
@@ -40,6 +43,7 @@ export default function AddRestaurantForm(props) {
                 onPress={addRestaurant}
                 buttonStyle={styles.btnAddRestaurant}
             />
+            <Map isVisibleMap={isVisibleMap} setIsVisibleMap={setIsVisibleMap} />
         </ScrollView>
     );
 }
@@ -60,7 +64,7 @@ function ImageRestaurant(props) {
 }
 
 function FormAdd(props) {
-    const { setRestaurantName, setRestaurantAddress, setRestaurantDescription} = props;
+    const { setRestaurantName, setRestaurantAddress, setRestaurantDescription, setIsVisibleMap} = props;
     return (
         <View style={styles.viewForm}>
             <Input 
@@ -72,6 +76,12 @@ function FormAdd(props) {
                 placeholder="Direccion"
                 containerStyle={styles.input}
                 onChange={(e) => setRestaurantAddress(e.nativeEvent.text)}
+                rightIcon={{
+                    type: "material-community", 
+                    name: "google-maps", 
+                    color: "#c2c2c2",
+                    onPress: () => setIsVisibleMap(true)
+                }}
             />
             <Input 
                 placeholder="Descripcion del restaurante"
@@ -81,6 +91,16 @@ function FormAdd(props) {
             />
 
         </View>
+    )
+}
+
+function Map(props) {
+    const { isVisibleMap, setIsVisibleMap } = props;
+    
+    return (
+        <Modal isVisible={isVisibleMap} setIsVisible={setIsVisibleMap}>
+            <Text>Mapa</Text>
+        </Modal>
     )
 }
 

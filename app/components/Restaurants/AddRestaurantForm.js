@@ -1,18 +1,25 @@
 import React, {useState} from "react";
 import { StyleSheet, View, Text, ScrollView, Alert, Dimensions } from "react-native";
 import { Icon, Avatar, Image , Input, Button } from "react-native-elements";
+import * as Permissions from "expo-permissions";
+import * as ImagePicker from "expo-image-picker";
+import { map, size } from "lodash";
 
 export default function AddRestaurantForm(props) {
     const { toastRef, setIsLoading, navigation } = props;
     const [restaurantName, setRestaurantName] = useState("");
     const [restaurantAddress, setRestaurantAddress] = useState("");
     const [restaurantDescription, setRestaurantDescription] = useState("");
+    const [imageSelected, setImageSelected] = useState([]);
+
 
     const addRestaurant = () => {
         console.log("ok");
-        console.log("restaurantName: " + restaurantName);
+        console.log(imageSelected);
+
+        /*console.log("restaurantName: " + restaurantName);
         console.log("restaurantAddress: " + restaurantAddress);
-        console.log("restaurantDescription: " + restaurantDescription);
+        console.log("restaurantDescription: " + restaurantDescription);*/
     }
 
     return (
@@ -22,7 +29,7 @@ export default function AddRestaurantForm(props) {
                 setRestaurantAddress={setRestaurantAddress}
                 setRestaurantDescription={setRestaurantDescription}
             />
-            <UploadImage />
+            <UploadImage toastRef={toastRef} setImageSelected={setImageSelected} imageSelected={imageSelected} />
             <Button 
                 title="Crear Restaurante"
                 onPress={addRestaurant}
@@ -57,22 +64,56 @@ function FormAdd(props) {
     )
 }
 
-function UploadImage(){
-    const imageSelect = () => {
-        console.log("imagenes..")
+function UploadImage(props){
+    const { toastRef, setImageSelected, imageSelected } = props;
+    const imageSelect = async () => {
+        const resultPermissions = await Permissions.askAsync(
+            Permissions.CAMERA
+        );
+
+
+        if(resultPermissions === "denied"){
+            toastRef.current.show("Es necesario activar los permisos de la galeria, si los has rechazado, tienes que ir a ajustes y activarlos manualmente");
+
+        } else {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true, 
+                aspect:[4,3]
+            });
+
+            console.log(result);
+            if(result.cancelled){
+                toastRef.current.show(
+                    "Has cerrado la galería sin seleccionar ninguna imagen",
+                    2000
+                )
+            } else {
+                setImageSelected([...imageSelected, result.uri])
+            }
+        }
     }
 
     return (
         <View style={styles.viewImage}>
-            <Icon 
-                type="material-community"
-                name="camera"
-                color="#7a7a7a"
-                containerStyle={styles.containerIcon}
-                onPress={imageSelect}
-            />
+            {size(imageSelected) < 5 && (
+                 <Icon 
+                    type="material-community"
+                    name="camera"
+                    color="#7a7a7a"
+                    containerStyle={styles.containerIcon}
+                    onPress={imageSelect}
+                />
+            )}
+           
+        {map(imageSelected, (imageRestaurant, index) => (
+            <Avatar 
+                key={index}
+                style={styles.miniatureStyle}
+                source={{ uri: imageRestaurant }}
+            />  
+        ))}
         </View>
-    )
+    ) 
 }
 
 const styles = StyleSheet.create({
@@ -109,5 +150,10 @@ const styles = StyleSheet.create({
         height: 70, 
         width: 70,
         backgroundColor: "#e3e3e3"
+    }, 
+    miniatureStyle: {
+        width: 70,
+        height: 70, 
+        marginRight: 10
     }
 })

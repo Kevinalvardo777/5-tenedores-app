@@ -6,7 +6,12 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import MapView from "react-native-maps";
 import { map, size, filter } from "lodash";
+import uuid from "random-uuid-v4";
 import Modal from "../Modal";
+
+import { firebaseApp } from "../../utils/firebase";
+import firebase from "firebase/app";
+import "firebase/storage";
 
 const widthScreen = Dimensions.get("window").width;
 
@@ -28,9 +33,35 @@ export default function AddRestaurantForm(props) {
         } else if (!locationRestaurant){
             toastRef.current.show("Tienes que localizar el restaurant en el mapa");
         } else {
-            console.log(locationRestaurant);
-            console.log("ok");
+            setIsLoading(true);
+            uploadImageStorage().then((response) => {
+                console.log(response);
+                setIsLoading(false);
+            })
         }
+    };
+
+    const uploadImageStorage = async () => {
+        const imageBlob = [];
+
+        await Promise.all(
+            map(imageSelected, async (image) => {
+                const response = await fetch(image); 
+                const blob = await response.blob();
+                const ref = firebase.storage().ref("restaurants").child(uuid());
+                await ref.put(blob).then(async (result) => {
+                    await firebase
+                        .storage()
+                        .ref(`restaurants/${result.metadata.name}`)
+                        .getDownloadURL()
+                        .then((photoUrl) => {
+                            imageBlob.push(photoUrl);
+                        });
+                });
+            })
+        )
+
+        return imageBlob;
     };
 
     return (

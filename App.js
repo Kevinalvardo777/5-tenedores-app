@@ -3,7 +3,7 @@ import { LogBox } from "react-native";
 import Navigation from "./app/navigations/Navigation";
 import { firebaseApp } from "./app/utils/firebase";
 
-LogBox.ignoreAllLogs();
+LogBox.ignoreAllLogs(true);
 
 
 export default function App() {

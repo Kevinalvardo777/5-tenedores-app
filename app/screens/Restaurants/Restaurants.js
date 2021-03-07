@@ -3,10 +3,18 @@ import { StyleSheet, View, Text } from "react-native";
 import { Icon } from "react-native-elements";
 import { firebaseApp } from "../../utils/firebase";
 import firebase from "firebase/app";
+import "firebase/firestore";
+import ListRestaurants from "../Restaurants/ListRestaurants";
+
+const db = firebase.firestore(firebaseApp);
 
 export default function Restaurants(props){
     const { navigation } = props;
     const [user, setUser] = useState(null);
+    const [restaurants, setRestaurants] = useState([]);
+    const [totalRestaurants, setTotalRestaurants] = useState(0);
+    const [startRestaurants, setStartRestaurants] = useState(null);
+    const limitRestaurants = 10;
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged((userInfo) => {
@@ -14,9 +22,38 @@ export default function Restaurants(props){
         })
     }, [])
 
+    useEffect(() => {
+        db.collection("restaurants")
+        .get()
+        .then((snap) => {
+            setTotalRestaurants(snap.size);
+        });
+
+        const resultRestaurants = [];
+
+        db.collection("restaurants")
+        .orderBy("createBy", "desc")
+        .limit(limitRestaurants)
+        .get()
+        .then((response) => {
+            setStartRestaurants(response.docs[response.docs.length - 1]);
+            
+            response.forEach((doc) => {
+               // console.log(doc.data());
+               const restaurant = doc.data();
+               restaurant.id = doc.id;
+               resultRestaurants.push(restaurant);
+            });
+
+            setRestaurants(resultRestaurants);
+        } )
+    }, [])
+
     return (
         <View style={styles.viewBody}>
-            <Text>Restaurants...</Text>
+            <ListRestaurants 
+                restaurants={restaurants}
+            />
             {user && (
                 <Icon 
                     reverse
@@ -32,7 +69,7 @@ export default function Restaurants(props){
             
         </View>
     );
-}
+} 
 
 const styles = StyleSheet.create({
     viewBody: {

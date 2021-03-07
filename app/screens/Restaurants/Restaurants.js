@@ -14,6 +14,7 @@ export default function Restaurants(props){
     const [restaurants, setRestaurants] = useState([]);
     const [totalRestaurants, setTotalRestaurants] = useState(0);
     const [startRestaurants, setStartRestaurants] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const limitRestaurants = 10;
 
     useEffect(() => {
@@ -48,6 +49,32 @@ export default function Restaurants(props){
             setRestaurants(resultRestaurants);
         } )
     }, [])
+
+    const handleLoadMore = async () => {
+        const resultRestaurants = [];
+        restaurant.length < totalRestaurants && setIsLoading(true);
+
+        db.collection("restaurants")
+        .orderBy("createBy", "desc")
+        .startAfter(startRestaurants.data().createBy)
+        .limit(limitRestaurants)
+        .get()
+        .then((response) => {
+            if(response.docs-length > 0) {
+                setStartRestaurants(response.docs[response.docs.length - 1]);
+            } else {
+                setIsLoading(false);
+            }
+
+            response.forEach((doc) => {
+                const restaurant = doc.data();
+                restaurant.id = doc.id;
+                resultRestaurants.push({ restaurant });
+            });
+
+            setRestaurants([...restaurant, ...resultRestaurants]);
+        })
+    }
 
     return (
         <View style={styles.viewBody}>

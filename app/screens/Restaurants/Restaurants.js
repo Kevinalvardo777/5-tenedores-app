@@ -52,7 +52,7 @@ export default function Restaurants(props){
 
     const handleLoadMore = async () => {
         const resultRestaurants = [];
-        restaurant.length < totalRestaurants && setIsLoading(true);
+        restaurants.length < totalRestaurants && setIsLoading(true);
 
         db.collection("restaurants")
         .orderBy("createBy", "desc")
@@ -69,10 +69,10 @@ export default function Restaurants(props){
             response.forEach((doc) => {
                 const restaurant = doc.data();
                 restaurant.id = doc.id;
-                resultRestaurants.push({ restaurant });
+                resultRestaurants.push(restaurant);
             });
 
-            setRestaurants([...restaurant, ...resultRestaurants]);
+            setRestaurants([...restaurants, ...resultRestaurants]);
         })
     }
 
@@ -80,6 +80,8 @@ export default function Restaurants(props){
         <View style={styles.viewBody}>
             <ListRestaurants 
                 restaurants={restaurants}
+                handleLoadMore={handleLoadMore}
+                isLoading={isLoading}
             />
             {user && (
                 <Icon 

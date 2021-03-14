@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
-import { Rating } from "react-native-elements";
+import { map } from "lodash";
+import { Rating, ListItem, Icon } from "react-native-elements";
 import Loading from "../../components/Loading";
 import Carousel from "../../components/Carousel";
 import Map from "../../components/Map";
@@ -77,12 +78,45 @@ function TitleRestaurant(props) {
 function RestaurantInfo(props){
     const { location, name, address } = props;
 
+    const ListInfo = [
+        {
+            text: address, 
+            iconName: "map-marker",
+            iconType: "material-community", 
+            action: null
+        }, 
+        {
+            text: "111 222 333", 
+            iconName: "phone",
+            iconType: "material-community", 
+            action: null
+        }, 
+        {
+            text: "cualquier@gmail.com", 
+            iconName: "at",
+            iconType: "material-community", 
+            action: null
+        }, 
+    ]
+
     return(
         <View style={styles.viewRestaurantInfo}>
             <Text style={styles.restaurantInforTitle}>
                 Información sobre el restaurante
             </Text>
             <Map location={location} name={name} height={100} />
+            {map(ListInfo, (item, index) => (
+                <ListItem 
+                    key={index}
+                    title={item.text}
+                    leftIcon={{
+                        name: item.iconName,
+                        type: item.iconType,
+                        color: "#00a680"
+                    }}
+                    containerStyle={styles.containerListItem}
+                />
+            ))}
         </View>
     )
 }
@@ -115,5 +149,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold", 
         marginBottom: 10
+    }, 
+    containerListItem: {
+        borderBottomColor: "#d8d8d8",
+        borderBottomWidth: 1
     }
 })

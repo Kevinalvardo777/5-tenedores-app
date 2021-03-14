@@ -2,15 +2,19 @@
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Image } from "react-native-elements";
 import { size } from "lodash";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ListRestaurants(props) {
     const { restaurants, handleLoadMore, isLoading } = props;
+    const navigation = useNavigation();
+
     return (
         <View>
             {size(restaurants) > 0 ? (
                 <FlatList 
                     data={restaurants}
-                    renderItem={(restaurant) => <Restaurant restaurant={restaurant} />}
+                    renderItem={(restaurant) => <Restaurant restaurant={restaurant} navigation={navigation} />}
+                    keyExtractor={(key,index) => index.toString()}
                     onEndReachedThreshold={0.5}
                     onEndReached={handleLoadMore}
                     ListFooterComponent={<FooterList isLoading={isLoading} />}
@@ -26,12 +30,15 @@ export default function ListRestaurants(props) {
 }
 
 function Restaurant(props) {
-    const { restaurant } = props;
-    const { images, name, address, description } = restaurant.item;
+    const { restaurant, navigation } = props;
+    const { id, images, name, address, description } = restaurant.item;
     const ImageRestaurant = images[0];
 
     const goRestaurant = () => {
-        console.log("OK");
+        navigation.navigate("restaurant", { 
+            id, 
+            name
+        });
     }
 
     return (
@@ -52,7 +59,7 @@ function Restaurant(props) {
                 <View>
                     <Text style={styles.restaurantName}>{name}</Text>
                     <Text style={styles.restaurantAddress}>{address}</Text>
-                    <Text style={styles.restaurantDescription}>{description.substr(0, 60)}...</Text>
+                    <Text style={styles.restaurantDescription}>{description.substr(0,60)}...</Text>
                 </View>
             </View>
         </TouchableOpacity>

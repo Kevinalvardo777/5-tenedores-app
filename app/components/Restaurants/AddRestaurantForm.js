@@ -49,6 +49,7 @@ export default function AddRestaurantForm(props) {
                         rating: 0,
                         ratingTotal : 0, 
                         quantityVoting: 0,
+                        createdAt: new Date(),
                         createBy: firebase.auth().currentUser.uid,
                     })
                     .then(() => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from "react-native";
 import MapView from "react-native-maps";
 import openMap from "react-native-open-maps";
 
@@ -6,12 +7,18 @@ export default function Map(props) {
     const { location, name, height } = props;
 
     const openAppMap = () =>{
-        openMap({
-            latitude: location.latitude,
-            longitude: location.longitude,
-            zoom: 19, 
-            query: name
-        })
+        const datosCoords = Platform.select({
+            ios: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+              zoom: 19,
+            },
+            android: {
+              query: `${String(location.latitude)},${String(location.longitude)}`,
+              zoom: 19,
+            },
+          });
+          openMap(datosCoords);
     }
 
     return (

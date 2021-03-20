@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback , useRef} from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { map } from "lodash";
 import { Rating, ListItem, Icon } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
+import Toast from "react-native-easy-toast";
 import Loading from "../../components/Loading";
 import Carousel from "../../components/Carousel";
 import Map from "../../components/Map";
@@ -20,8 +21,15 @@ export default function Restaurant(props) {
     const { id, name } = route.params;
     const [restaurant, setRestaurant] = useState(null); 
     const [rating, setRating] = useState(0);
+    const [isFavorite, setIsFavorite] = useState(true);
+    const [userLogged, setUserLogged] = useState(false);
+    const toastRef = useRef();
 
     navigation.setOptions({ title: name });
+
+    firebase.auth().onAuthStateChanged(() => {
+        user ? setUserLogged(true) : setUserLogged(false);
+    })
 
     useFocusEffect(
     useCallback(() => {
@@ -37,6 +45,14 @@ export default function Restaurant(props) {
     }, [])
     );
 
+    const addFavorite = () => {
+        console.log("Añadir a favoritos");
+    }
+
+    const removeFavorite = () => {
+        console.log("Eliminar de favoritos");
+    }
+
     if(!restaurant) return <Loading isVisible={true} text="Cargando..." />
 
     return (
@@ -44,9 +60,9 @@ export default function Restaurant(props) {
             <View style={styles.viewFavorite}>
                 <Icon 
                     type="material-community"
-                    name="heart"
-                    onPress={() => console.log("Add favorites")}
-                    color="#000"
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    onPress={isFavorite ? removeFavorite : addFavorite}
+                    color={isFavorite ? "#f00" : "#000"}
                     size={35}
                     underlayColor="transparent"
                 />
@@ -70,6 +86,7 @@ export default function Restaurant(props) {
                 navigation={navigation}
                 idRestaurant={restaurant.id}
             />
+            <Toast ref={toastRef} position="center" opacity={0.9} />
         </ScrollView>
     )
 }

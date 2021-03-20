@@ -10,7 +10,6 @@ export default function Search(props) {
     const { navigation } = props;
     const [search, setSearch] = useState("");
     const [restaurants, setRestaurants] = useState([]);
-    console.log(restaurants);
 
     useEffect(() => {
         if(search){
@@ -30,8 +29,27 @@ export default function Search(props) {
                 value={search}
                 containerStyle={styles.searchBar}
             />
+            {restaurants.length === 0 ? (
+                <NoFoundRestaurants />
+            ) : (
+                <View>
+                    <Text>Resultado...</Text>
+                </View>
+            )}
         </View>
     );
+}
+
+function NoFoundRestaurants(){
+    return (
+    <View style={{ flex: 1, alignItems: "center"}}>
+        <Image 
+            source={require("../../assets/img/no-result-found.png")}
+            resizeMode="cover"
+            style={{ width: 200, height: 200}}
+        />
+    </View>
+    )
 }
 
 const styles = StyleSheet.create({

@@ -45,6 +45,20 @@ export default function Restaurant(props) {
     }, [])
     );
 
+    useEffect(() => {
+        if(userLogged && restaurant) {
+            db.collection("favorites")
+                .where("idRestaurant", "==", restaurant.id)
+                .where("idUser", "==", firebase.auth().currentUser.uid)
+                .get()
+                .then((response) => {
+                    if(response.docs.length === 1) {
+                        setIsFavorite(true);
+                    }
+                });
+        }
+    }, [userLogged, restaurant]);
+
     const addFavorite = () => {
         if(!userLogged){
             toastRef.current.show("Para usar el sistema de favoritos tienes que estar loggeado");

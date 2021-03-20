@@ -21,13 +21,13 @@ export default function Restaurant(props) {
     const { id, name } = route.params;
     const [restaurant, setRestaurant] = useState(null); 
     const [rating, setRating] = useState(0);
-    const [isFavorite, setIsFavorite] = useState(true);
+    const [isFavorite, setIsFavorite] = useState(false);
     const [userLogged, setUserLogged] = useState(false);
     const toastRef = useRef();
 
     navigation.setOptions({ title: name });
 
-    firebase.auth().onAuthStateChanged(() => {
+    firebase.auth().onAuthStateChanged((user) => {
         user ? setUserLogged(true) : setUserLogged(false);
     })
 
@@ -46,7 +46,23 @@ export default function Restaurant(props) {
     );
 
     const addFavorite = () => {
-        console.log("Añadir a favoritos");
+        if(!userLogged){
+            toastRef.current.show("Para usar el sistema de favoritos tienes que estar loggeado");
+        } else {
+            const payload = {
+                idUser: firebase.auth().currentUser.uid,
+                idRestaurant: restaurant.id
+            }
+
+            db.collection("favorites")
+                .add(payload)
+                .then(() => {
+                    setIsFavorite(true);
+                    toastRef.current.show("Restaurante añadido a favoritos");
+                }).catch(() => {
+                    toastRef.current.show("Error al añadir el restaurante a favoritos");
+                })
+        }
     }
 
     const removeFavorite = () => {

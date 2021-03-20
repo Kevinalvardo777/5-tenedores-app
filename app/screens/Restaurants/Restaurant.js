@@ -80,7 +80,24 @@ export default function Restaurant(props) {
     }
 
     const removeFavorite = () => {
-        console.log("Eliminar de favoritos");
+        db.collection("favorites")
+            .where("idRestaurant", "==", restaurant.id)
+            .where("idUser", "==", firebase.auth().currentUser.uid)
+            .get()
+            .then((response) => {
+                response.forEach((doc) => {
+                    const idFavorite = doc.id;
+                    db.collection("favorites")
+                        .doc(idFavorite)
+                        .delete()
+                        .then(() => {
+                            setIsFavorite(false);
+                            toastRef.current.show("Restaurante eliminado de favoritos")
+                        }).catch(() => {
+                            toastRef.current.show("Error al eliminar el restaurante de favoritos")
+                        })
+                });
+            })
     }
 
     if(!restaurant) return <Loading isVisible={true} text="Cargando..." />
